@@ -8,10 +8,11 @@ import requests
 from PIL import Image
 from io import BytesIO
 import re
-from urllib.parse import unquote
+from urllib.parse import urlparse, parse_qs
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 import time
+from urllib.parse import unquote
 
 # Bot token
 TOKEN = 'YOUR TOKEN'
@@ -98,6 +99,13 @@ def handle_message(message):
             message, "Invalid input. Please enter the product name or send an image of the product.")
 
 
+def clean_link(link):
+    parsed_link = urlparse(link)
+    query_params = parse_qs(parsed_link.query)
+    cleaned_link = query_params.get('url', [''])[0]
+    return cleaned_link
+
+
 def search_product_price_text(product_name):
     driver_path = r"CHROME DRIVER PATH"
     service = Service(executable_path=driver_path)
@@ -112,12 +120,6 @@ def search_product_price_text(product_name):
 
     # Find all products listed on the page
     products = soup.find_all('div', {'class': 'sh-dlr__list-result'})
-
-    elements = soup.find_all(text="Azrieli.com")
-
-    for element in elements:
-        element_name = element.parent.name
-    print(element_name)
 
     if not products:
         driver.quit()
@@ -134,11 +136,8 @@ def search_product_price_text(product_name):
 
         link_element = product.find('a', class_='shntl')
         link = link_element['href'] if link_element else "N/A"
+        link = clean_link(link)
 
-        provider_element = product.find('div', class_='aULzUe')
-        provider = provider_element.text.strip() if provider_element else "N/A"
-        print(provider_element)
-        print(provider)
         search_words = product_name.lower().split()
         if all(word in name.lower() or word in name.lower()[:len(name)//2] for word in search_words):
             # Extract the price value from the string and convert it to a float
@@ -163,7 +162,7 @@ def search_product_price_text(product_name):
 
 
 def search_product_price_image(image):
-    driver_path = r"CHROM DRIVER PATH"
+    driver_path = r"CHROME DRIVER PATH"
     service = Service(executable_path=driver_path)
     driver = webdriver.Chrome(service=service, options=options)
 
@@ -202,59 +201,36 @@ def search_product_price_image(image):
     # Find all products listed on the page
     products = soup.find_all()
 
- #   for item in products:
-#        print(item)
-    # Get search results
-   # search_results = driver.find_elements(By.CSS_SELECTOR, "div.Vd9M6  xuQ19b")
-    # for item in search_results:
-    #    print(item)
-
-#    if not search_results:
-    #       driver.quit()
-  #      return "Sorry, no search results found."
-
     product_data = []
 
     for result in products:
         # Get product name
         name_element = result.find("div", class_='UAiK1e')
         name = name_element.text.strip() if name_element else "N/A"
-    #    print(name_element)
-     #   print(name)
 
         # Get price
         price_element = result.find("span", class_="DdKZJb")
         price = price_element.text.strip() if price_element else "N/A"
-      #  print(price_element)
-        # print(price)
 
         # Get page URL
         link_element = result.find("a", class_="GZrdsf lXbkTc")
         link = link_element.get("href") if link_element else "N/A"
-        # print(link_element)
-        # print(link)
 
         if price != 'N/A' and link not in [product['link'] for product in product_data]:
             product_data.append(
                 {'name': name, 'price': price, 'link': link})
 
-    for p in product_data:
-        print("priceB" + p['price'])
 
-    # Break the loop if we have found 3 unique products
-    # if len(product_data) == 3:
-    # break
 
     # Sort the products by price (lowest to highest)
     product_data = sorted(product_data, key=lambda x: float(
         re.sub(r'[^\d.]', '', x['price'])))
 
-    for p in product_data:
-        print("priceA-  " + p['price'])
 
-    # Generate the response message with the top 3 results
-    response = "Here are the top 3 results:\n"
-    for i, product in enumerate(product_data[:13], start=1):
+
+    # Generate the response message with the top 10 results
+    response = "Here are the top 10 results:\n"
+    for i, product in enumerate(product_data[:10], start=1):
         response += f"\n{i}. Name: {product['name']}\n   Price: {product['price']} USD\n   Link: {unquote(product['link'])}\n"
 
     return response
