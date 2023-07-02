@@ -228,9 +228,9 @@ def search_product_price_image(image):
 
 
 
-    # Generate the response message with the top 10 results
-    response = "Here are the top 10 results:\n"
-    for i, product in enumerate(product_data[:10], start=1):
+    # Generate the response message with the top 5 results
+    response = "Here are the top 5 results:\n"
+    for i, product in enumerate(product_data[:5], start=1):
         response += f"\n{i}. Name: {product['name']}\n   Price: {product['price']} USD\n   Link: {unquote(product['link'])}\n"
 
     return response
