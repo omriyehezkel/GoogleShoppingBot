@@ -1,9 +1,16 @@
+
+https://github.com/omriyehezkel/GoogleShoppingBot/assets/40993248/2a7ca1b2-0c6c-49c1-ab11-1d2090d01fe7
 # GoogleShoppingBot
 This is a Telegram bot written in Python that allows users to search and compare prices of products on Google Shopping. The bot supports searching by product name or by sending an image of the product.
 
 ## To try the bot, please use the following link:
 
 https://t.me/comperPrices_bot
+
+
+https://github.com/omriyehezkel/GoogleShoppingBot/assets/40993248/a2c2e8b9-93e0-4320-adeb-afb91f984d55
+
+
 
 ## Getting Started
 
